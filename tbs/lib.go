@@ -49,31 +49,34 @@ type ioStatusBlock struct {
 	information uintptr
 }
 
-func bytesToPByte(b []byte) uintptr {
-	p := unsafe.Pointer(unsafe.SliceData(b))
+func sliceToPtr[T byte | uint16](v []T) uintptr {
+	if len(v) == 0 {
+		return 0
+	}
+	p := unsafe.Pointer(unsafe.SliceData(v))
 	return uintptr(p)
 }
 
 func deviceIoControl(handle uintptr, code uint32, in, out []byte, size *uint32) error {
-	result, _, err := deviceIoControlFunc.Call(
+	ret, _, err := deviceIoControlFunc.Call(
 		handle,
 		uintptr(code),
-		bytesToPByte(in),
+		sliceToPtr(in),
 		uintptr(len(in)),
-		bytesToPByte(out),
+		sliceToPtr(out),
 		uintptr(len(out)),
 		uintptr(unsafe.Pointer(size)),
 		0,
 	)
-	if result == 0 {
+	if ret == 0 {
 		return err
 	}
 	return nil
 }
 
 func closeHandle(handle uintptr) error {
-	result, _, err := closeHandleFunc.Call(handle)
-	if result == 0 {
+	ret, _, err := closeHandleFunc.Call(handle)
+	if ret == 0 {
 		return err
 	}
 	return nil
@@ -130,7 +133,7 @@ func ntQueryInfoFile(handle uintptr) error {
 	status, _, _ := ntQueryInfoFileFunc.Call(
 		handle,
 		uintptr(unsafe.Pointer(&ioStatusBlock{})),
-		bytesToPByte(out),
+		sliceToPtr(out),
 		8,
 		16, // FileModeInformation
 	)
@@ -143,7 +146,7 @@ func ntQueryInfoFile(handle uintptr) error {
 func ntQuerySystemInformation(sysInfoClass int32, info []byte, sysInfoLen uint64) error {
 	status, _, _ := ntQuerySystemInfoFunc.Call(
 		uintptr(sysInfoClass),
-		bytesToPByte(info),
+		sliceToPtr(info),
 		uintptr(sysInfoLen),
 		0,
 	)
@@ -161,7 +164,7 @@ func ntGetPersistedStateLocation(sid, path *uint16, locationType uint32) (string
 		0, // LocationTypeRegistry
 		uintptr(unsafe.Pointer(path)),
 		uintptr(locationType),
-		uintptr(unsafe.Pointer(&target[0])),
+		sliceToPtr(target),
 		uintptr(size),
 		uintptr(unsafe.Pointer(&size)),
 	)
