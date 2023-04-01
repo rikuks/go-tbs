@@ -173,3 +173,15 @@ func ntGetPersistedStateLocation(sid, path *uint16, locationType uint32) (string
 	}
 	return syscall.UTF16ToString(target[:size]), nil
 }
+
+func getRedirectionMapFromSid(id, dp string, locationType uint32) (string, error) {
+	sid, err := syscall.UTF16PtrFromString(id)
+	if err != nil {
+		return "", err
+	}
+	path, err := syscall.UTF16PtrFromString(dp)
+	if err != nil {
+		return "", err
+	}
+	return ntGetPersistedStateLocation(sid, path, locationType)
+}

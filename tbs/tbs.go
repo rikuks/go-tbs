@@ -218,15 +218,8 @@ func GetTCGLog() ([]byte, error) {
 }
 
 func getDeviceIDWithTimeout() ([]byte, error) {
-	sid, err := syscall.UTF16PtrFromString("TpmRegDriverPersistedData")
-	if err != nil {
-		return nil, err
-	}
-	dp, err := syscall.UTF16PtrFromString(filepath.Join(tpmServicePath, "WMI"))
-	if err != nil {
-		return nil, err
-	}
-	path, err := ntGetPersistedStateLocation(sid, dp, 0)
+	dp := filepath.Join(tpmServicePath, "WMI")
+	path, err := getRedirectionMapFromSid("TpmRegDriverPersistedData", dp, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -263,15 +256,7 @@ func getCurrentLog(flag bool) ([]byte, error) {
 }
 
 func getTCGLogs(flag bool, first uint32) ([]byte, error) {
-	sid, err := syscall.UTF16PtrFromString("TpmRegDriverTpm")
-	if err != nil {
-		return nil, err
-	}
-	dPath, err := syscall.UTF16PtrFromString(tpmServicePath)
-	if err != nil {
-		return nil, err
-	}
-	path, err := ntGetPersistedStateLocation(sid, dPath, 0)
+	path, err := getRedirectionMapFromSid("TpmRegDriverTpm", tpmServicePath, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -292,15 +277,7 @@ func getTCGLogs(flag bool, first uint32) ([]byte, error) {
 	if errors.Is(err, registry.ErrNotExist) {
 		logPath = filepath.Join(p, "Logs\\MeasuredBoot")
 	}
-	sid, err = syscall.UTF16PtrFromString("TpmDriverLogPath")
-	if err != nil {
-		return nil, err
-	}
-	dPath, err = syscall.UTF16PtrFromString(logPath)
-	if err != nil {
-		return nil, err
-	}
-	path, err = ntGetPersistedStateLocation(sid, dPath, 1)
+	path, err = getRedirectionMapFromSid("TpmDriverLogPath", logPath, 1)
 	if err != nil {
 		return nil, err
 	}
