@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	modK32 = syscall.NewLazyDLL("Kernel32")
+	modK32 = syscall.NewLazyDLL("Kernel32.dll")
 
 	closeHandleFunc     = modK32.NewProc("CloseHandle")
 	deviceIoControlFunc = modK32.NewProc("DeviceIoControl")
@@ -161,7 +161,7 @@ func ntGetPersistedStateLocation(sid, path *uint16, locationType uint32) (string
 	size := uint64(len(target))
 	status, _, _ := rtGetLocationFunc.Call(
 		uintptr(unsafe.Pointer(sid)),
-		0, // LocationTypeRegistry
+		0,
 		uintptr(unsafe.Pointer(path)),
 		uintptr(locationType),
 		sliceToPtr(target),

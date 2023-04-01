@@ -334,7 +334,7 @@ func GetTCGLogEx(logType LogType) ([]byte, error) {
 	if !isTpmPresent() {
 		return nil, ErrTpmDeviceNotFound
 	}
-	// available log-types are the same as the value of TPMActiveLogFormat
+
 	var flag bool
 	switch logType {
 	case LogTypeSRTMCurrent:
