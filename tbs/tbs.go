@@ -68,18 +68,18 @@ const (
 type LogType uint32
 
 const (
-	LogTypeSRTMCurrent LogType = iota
-	LogTypeDRTMCurrent
-	LogTypeSRTMBoot
-	LogTypeSRTMResume
-	LogTypeDRTMBoot
-	LogTypeDRTMResume
+	LogTypeSRTMCurrent LogType = iota // log associated with the current session (boot or resume)
+	LogTypeDRTMCurrent                // log associated with the current session (boot or resume)
+	LogTypeSRTMBoot                   // log associated with the most recent clean boot (SRTM log)
+	LogTypeSRTMResume                 // log associated with the current resume from hibernation (SRTM log)
+	LogTypeDRTMBoot                   // log associated with the most recent clean boot (DRTM log)
+	LogTypeDRTMResume                 // log associated with the current resume from hibernation (DRTM log)
 )
 
 var (
 	ErrInvalidContext    = errors.New("the specified context handle does not refer to a valid context")
-	ErrUnavailableLog    = errors.New("the TBS event log is not available")
-	ErrTpmDeviceNotFound = errors.New("a compatible Trusted Platform Module (TPM) Security Device cannot be found on this computer")
+	ErrUnavailableLog    = errors.New("event log is not available")
+	ErrTpmDeviceNotFound = errors.New("a compatible TPM Security Device cannot be found on this computer")
 )
 
 // SubmitCommand submits a Trusted Platform Module (TPM) command to TPM Base Services (TBS) for processing.
