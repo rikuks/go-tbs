@@ -13,6 +13,7 @@ var (
 
 	closeHandleFunc     = modK32.NewProc("CloseHandle")
 	deviceIoControlFunc = modK32.NewProc("DeviceIoControl")
+	getSystemWinDirFunc = modK32.NewProc("GetSystemWindowsDirectoryW")
 )
 
 var (
@@ -80,6 +81,19 @@ func closeHandle(handle uintptr) error {
 		return err
 	}
 	return nil
+}
+
+func getSystemWindowsDirectory() (string, error) {
+	dir := make([]uint16, 260)
+	ret, _, err := getSystemWinDirFunc.Call(
+		sliceToPtr(dir),
+		uintptr(len(dir)),
+	)
+	if ret == 0 {
+		return "", err
+	}
+	size := uint32(ret)
+	return syscall.UTF16ToString(dir[:size]), nil
 }
 
 func newUnicodeString(str string) (*unicodeString, error) {

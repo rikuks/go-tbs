@@ -13,7 +13,6 @@ import (
 	"syscall"
 	"unsafe"
 
-	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -269,7 +268,7 @@ func getTCGLogs(flag bool, first uint32) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	p, err := windows.GetSystemWindowsDirectory()
+	p, err := getSystemWindowsDirectory()
 	if err != nil {
 		return nil, err
 	}
