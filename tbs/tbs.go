@@ -44,8 +44,8 @@ type Priority uint32
 const (
 	PriorityLow    Priority = 0x64
 	PriorityNormal Priority = 0xC8
-	PrioritySystem Priority = 0x190
 	PriorityHigh   Priority = 0x12C
+	PrioritySystem Priority = 0x190
 	PriorityMax    Priority = 0x80000000
 )
 
@@ -103,13 +103,22 @@ func submitCommand(ctx uintptr, locality Locality, priority Priority, in, out []
 	if locality != LocalityZero || priority > PriorityMax {
 		return errors.New("internal error")
 	}
-	if code == 0 {
-		code = 0x22C00C
+	if in == nil {
+		return errors.New("invalid request size")
 	}
-	if err := tpmDeviceIoControl(ctx, code, in, out, size); err != nil {
-		return err
+	if len(out) < 0xA {
+		// At least a TPM header size is required.
+		return errors.New("output size is too small")
 	}
-	return nil
+	// On non-Windows platforms, the request buffer to the TPM
+	// starts at 0x80, but on Windows, the first 1Byte is 1-4
+	// to set the priority order.
+	if priority != PriorityMax {
+		in[0] = byte(priority / 100)
+	} else {
+		in[0] = 0x04
+	}
+	return tpmDeviceIoControl(ctx, code, in, out, size)
 }
 
 // CancelCommands cancels all outstanding commands for the specified context.
