@@ -82,7 +82,16 @@ var (
 )
 
 // SubmitCommand submits a Trusted Platform Module (TPM) command to TPM Base Services (TBS) for processing.
-func SubmitCommand(ctx uintptr, command, out []byte) (uint32, error) {
+func SubmitCommand(ctx uintptr, priority Priority, command, out []byte) (uint32, error) {
+	var size uint32
+	err := submitCommand(ctx, LocalityZero, priority, command, out, 0x22C00C, &size)
+	if err != nil {
+		return 0, err
+	}
+	return size, nil
+}
+
+func SubmitCommandDirect(ctx uintptr, command, out []byte) (uint32, error) {
 	var size uint32
 	if err := tpmDeviceIoControl(ctx, 0x22C00C, command, out, &size); err != nil {
 		return 0, err
